@@ -15,7 +15,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack {
   }
 
   get("/video/:id") {
-    val dir = File("../rl4j/doomreplay/")
+    val dir = File("/home/ubuntu/rl4j/doomreplay/")
     val search = dir.list.find(x => x.name == "DoomReplay-"+params("id")+".mp4")
     search match {
       case Some(file) =>
@@ -32,7 +32,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack {
   }
   get("/videos") {
     contentType="text/html"
-    val dir = File("../rl4j/doomreplay/")
+    val dir = File("/home/ubuntu/rl4j/doomreplay/")
     val files = dir.list.filter(_.name contains(".mp4")).map(_.name.dropRight(4).drop(11))
     scaml("videos.scaml", "files" -> files, "title" -> "Videos")
   }
