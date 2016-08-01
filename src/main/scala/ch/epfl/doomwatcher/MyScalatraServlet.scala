@@ -2,8 +2,12 @@ package ch.epfl.doomwatcher
 
 import org.scalatra._
 import better.files._
+import org.json4s.{DefaultFormats, Formats}
+import org.scalatra.json._
 
-class MyScalatraServlet extends Rl4jDoomWebAppStack {
+class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
+
+  protected implicit lazy val jsonFormats: Formats = DefaultFormats
 
   get("/") {
     <html>
@@ -28,14 +32,17 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack {
   }
 
   get("/chart"){
-    val chart = File(Configuration.dir+"score")
-    Ok(chart.lines.mkString("\n"))
+    contentType = formats("json")
+    val chart = File(Configuration.dir+"score").lines
+    val converted = chart.map(_.split(" ").map(_.toDouble)).transpose.toList
+    val typed = List(converted(0).map(_.toInt.toString), converted(1) , converted(2))
+    typed
   }
 
   get("/videos") {
     contentType="text/html"
     val dir = File(Configuration.dir+"doomreplay/")
-    val files = dir.list.filter(_.name contains(".mp4")).map(_.name.dropRight(4).drop(11)).toList.sortBy(_.toInt)
+    val files = dir.list.filter(_.name contains(".mp4")).map(_.name.dropRight(4).drop(11)).toList.sortBy(x => -x.toInt)
     scaml("videos.scaml", "files" -> files, "title" -> "Videos", "video_url" -> Configuration.video_url)
   }
 

@@ -7,6 +7,7 @@ import com.mojolly.scalate.ScalatePlugin._
 import ScalateKeys._
 
 object Rl4jDoomWebAppBuild extends Build {
+
   val Organization = "ch.epfl"
   val Name = "Rl4j Doom Web App"
   val Version = "1.0.0-SNAPSHOT"
@@ -16,7 +17,7 @@ object Rl4jDoomWebAppBuild extends Build {
   lazy val project = Project (
     "rl4j-doom-web-app",
     file("."),
-    settings = ScalatraPlugin.scalatraSettings ++ scalateSettings ++ Seq(
+    settings = ScalatraPlugin.scalatraSettings ++ scalateSettings ++  Seq(
       organization := Organization,
       name := Name,
       version := Version,
@@ -27,6 +28,8 @@ object Rl4jDoomWebAppBuild extends Build {
         "org.scalatra" %% "scalatra" % ScalatraVersion,
         "org.scalatra" %% "scalatra-scalate" % ScalatraVersion,
         "org.scalatra" %% "scalatra-specs2" % ScalatraVersion % "test",
+        "org.scalatra" %% "scalatra-json" % ScalatraVersion,
+        "org.json4s"   %% "json4s-jackson" % "3.3.0",
         "ch.qos.logback" % "logback-classic" % "1.1.5" % "runtime",
         "org.eclipse.jetty" % "jetty-webapp" % "9.2.15.v20160210" % "container",
         "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided",
