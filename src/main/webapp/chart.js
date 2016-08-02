@@ -44,7 +44,7 @@ function drawChartEps(data) {
 	    labels: data[0],
 	    datasets: [{
 		label: 'Epsilon',
-		data: data[1],
+		data: data[2],
 		backgroundColor: "rgba(80,90,120,0.2)"
 	    }
 		      ]
