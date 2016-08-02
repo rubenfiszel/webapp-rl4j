@@ -1,3 +1,5 @@
+
+
 package ch.epfl.doomwatcher
 
 object Configuration {
