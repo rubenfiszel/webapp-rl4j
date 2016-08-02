@@ -29,6 +29,12 @@ function drawChartCum(data) {
 			display: true,
 			labelString: 'Episode'
 		    },
+		    ticks: {
+			fontSize: 12,
+			maxTicksLimit: 10,
+			maxRotation: 0,
+			autoSkip: true
+		    },
 		    display: true}]
 	    }
 	}
@@ -67,6 +73,13 @@ function drawChartEps(data) {
 			display: true,
 			labelString: 'Episode'
 		    },
+		    ticks: {
+			fontSize: 12,
+			maxTicksLimit: 10,
+			maxRotation: 0,
+			autoSkip: true
+		    },
+
 		    display: true}]
 	    }
 	}

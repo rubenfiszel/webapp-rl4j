@@ -35,7 +35,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
     contentType = formats("json")
     val chart = File(Configuration.dir+"score").lines
     val converted = chart.map(_.split(" ").map(_.toDouble)).transpose.toList
-    val typed = List(converted(0).map(_.toInt.toString), converted(1) , converted(2))
+    val typed = List(converted(1).map(_.toInt.toString).toList.zip(converted(0).map(_.toInt.toString).toList).map(x => List(x._1, x._2)), converted(2) , converted(3))
     typed
   }
 
