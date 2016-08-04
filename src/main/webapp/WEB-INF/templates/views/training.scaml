@@ -85,14 +85,14 @@
         %div.panel-collapse.collapse(id={"collapse"+i} role="tabpanel" aria-labelledby={"heading"+i})
           %div.panel-body
             %div.text-center
-              %video{:width => "640", :height => "480", :controls => true}
+              %video{:controls => true, :preload=> "none"}
                 %source{:src => {"/video/"+id+"/"+i}, :type => "video/mp4"}
                 Your browser does not support the vidoe tag
       - else
         %div.panel-collapse.collapse.in(id={"collapse"+i} role="tabpanel" aria-labelledby={"heading"+i})
           %div.panel-body
             %div.text-center
-              %video{:width => "640", :height => "480", :controls => true, :preload=> "none"}
+              %video{:controls => true, :preload=> "none"}
                 %source{:src => {"/video/"+id+"/"+i}, :type => "video/mp4"}
                 Your browser does not support the vidoe tag
     - b = false
