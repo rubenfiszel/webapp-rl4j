@@ -1,0 +1,95 @@
+-import ch.epfl.doomwatcher._
+-@ val video_files: List[String]
+-@ val model_files: List[String]
+-@ val trainingInfo: TrainingInfo
+-@ val id: String = trainingInfo.name
+
+%ol.breadcrumb
+  %li
+    %a(href="/")
+      Home
+  %li
+    %a(href="#")
+      #{id}
+
+%div.panel.panel-default
+  %div.panel-heading
+    Info
+  %div.panel-body
+  %table.table.table-stripped
+    %tr
+      %th Id
+      %td #{trainingInfo.name}
+    %tr
+      %th MDP
+      %td #{trainingInfo.mdpName}
+    %tr
+      %th Training Method
+      %td #{trainingInfo.trainingName}
+    %tr
+      %th Last updated
+      %td #{trainingInfo.ago}
+    %tr
+      %th Max step
+      %td #{trainingInfo.maxStep}
+    %tr
+      %th Progress
+      %td
+        %div.progress
+          - if (trainingInfo.progress == 100)
+            %div.progress-bar.progress-bar-success(role="progressbar" style={"min-width: 10em; width: "+trainingInfo.progress+"%"})
+              #{trainingInfo.progress+"%" + " step:" +trainingInfo.stepCounter}
+          - else if (trainingInfo.active)
+            %div.progress-bar.progress-bar-info.progress-bar-striped.active(role="progressbar" style={"min-width: 10em; width: "+trainingInfo.progress+"%"})
+              #{trainingInfo.progress+"%" + " step:" +trainingInfo.stepCounter}
+
+          - else
+            %div.progress-bar.progress-bar-danger(role="progressbar" style={"min-width: 10em; width: "+trainingInfo.progress+"%"})
+              #{trainingInfo.progress+"%" + " step:" +trainingInfo.stepCounter}
+
+
+
+%div.panel.panel-default
+  %div.panel-heading
+    Charts
+  %div.panel-body
+    %div.row
+      %div.col-md-6
+        %canvas(id="cumReward")
+      %div.col-md-6
+        %canvas(id="epsilon")
+
+
+%div.panel-group#accordion(role="tablist" aria-multiselectable="true")
+  - var b = true
+  - for(i <- video_files)
+    %div.panel.panel-default
+      %div.panel-heading(role="tab" id={"heading"+i})
+        %h4.panel-title
+          %a(role="button" data-toggle="collapse" data-parent="#accordion" href={"#collapse"+i} aria-expanded={b} aria-controls={"collapse"+i})
+            Epoch: #{i}
+      - if (!b)
+        %div.panel-collapse.collapse(id={"collapse"+i} role="tabpanel" aria-labelledby={"heading"+i})
+          %div.panel-body
+            %div.text-center
+              %video{:width => "640", :height => "480", :controls => true}
+                %source{:src => {"/video/"+id+"/"+i}, :type => "video/mp4"}
+                Your browser does not support the vidoe tag
+      - else
+        %div.panel-collapse.collapse.in(id={"collapse"+i} role="tabpanel" aria-labelledby={"heading"+i})
+          %div.panel-body
+            %div.text-center
+              %video{:width => "640", :height => "480", :controls => true}
+                %source{:src => {"/video/"+id+"/"+i}, :type => "video/mp4"}
+                Your browser does not support the vidoe tag
+    - b = false
+
+%div.panel.panel-default
+  %div.panel-heading
+    Models
+  %div.panel-body
+  %ul.list-group
+    - for(i <- model_files)
+      %li.list-group-item
+        %a(href={"/model/"+id+"/"+i})
+          #{i}

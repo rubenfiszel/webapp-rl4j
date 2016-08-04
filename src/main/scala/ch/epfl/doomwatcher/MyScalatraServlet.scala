@@ -1,49 +1,131 @@
 package ch.epfl.doomwatcher
 
+import java.util.Date
+import org.json4s.JsonAST._
+import org.ocpsoft.prettytime.PrettyTime
 import org.scalatra._
 import better.files._
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.json._
 
+
+import scala.language.postfixOps
+
+case class TrainingInfo(name: String, mdpName: String, trainingName: String, ago: String, active: Boolean, progress: Int, stepCounter: Int, maxStep: Int)
+
 class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
 
   protected implicit lazy val jsonFormats: Formats = DefaultFormats
 
-  get("/") {
-    <html>
-      <body>
-        <h1>Hello, world!</h1>
-        Say <a href="hello-scalate">hello to Scalate</a>.
-      </body>
-    </html>
-  }
 
-  get("/video/:id") {
-    val dir = File(Configuration.dir+"doomreplay/")
-    val search = dir.list.find(x => x.name == "DoomReplay-"+params("id")+".mp4")
-    search match {
-      case Some(file) =>
-        contentType="video/mp4"
-        file.toJava
-      case None =>
-        NotFound("Sorry file not found")
+
+  def info(f: File) = {
+    val infoFile = f / "info"
+    val json = parse(infoFile !)
+
+    val mdpName = (json \  "mdpName") match {
+      case JString(name) => name
+      case _ => "No mdpName"
     }
-//    Ok(first)
+
+    val trainingName = (json \  "trainingName") match {
+      case JString(name) => name
+      case _ => "No trainingName"
+    }
+
+
+    val ago = (json \ "millisTime") match {
+      case JInt(millis) => new Date(millis.toLong)
+      case _ => new Date(0)
+    }
+
+    val progress = ((json \ "stepCounter"), (json \\ "maxStep")) match {
+      case (JInt(step), JInt(maxStep)) => ((step.toLong/maxStep.toLong).toInt, step.toInt, maxStep.toInt)
+      case _ => (0, 0, 0)
+    }
+    val minAgo10 = new Date(System.currentTimeMillis()-1000*60*5)
+    TrainingInfo(f.name, mdpName, trainingName, new PrettyTime().format(ago), ago.after(minAgo10), progress._1, progress._2, progress._3)
   }
 
-  get("/chart"){
-    contentType = formats("json")
-    val chart = File(Configuration.dir+"score").lines
-    val converted = chart.map(_.split(" ").map(_.toDouble)).transpose.toList
-    val typed = List(converted(1).map(_.toInt.toString).toList.zip(converted(0).map(_.toInt.toString).toList).map(x => List(x._1, x._2)), converted(2) , converted(3))
-    typed
-  }
-
-  get("/videos") {
+  get("/") {
     contentType="text/html"
-    val dir = File(Configuration.dir+"doomreplay/")
-    val files = dir.list.filter(_.name contains(".mp4")).map(_.name.dropRight(4).drop(11)).toList.sortBy(x => -x.toInt)
-    scaml("videos.scaml", "files" -> files, "title" -> "Videos", "video_url" -> Configuration.video_url)
+    val dir = File(Configuration.dir+"/")
+    if (!dir.exists)
+      NotFound("rl4j data folder not found")
+    else {
+      val trainings = dir
+        .list
+        .filter(x => x / "info" exists())
+        .map(info)
+        .toList
+        .sortBy(_.name)
+        .reverse
+
+      scaml("home.scaml", "title" -> "List of trainings", "trainings" -> trainings)
+    }
+  }
+
+  get("/video/:id/:vid") {
+    val dir = File(Configuration.dir+params("id")+"/video/")
+    if (!dir.exists)
+      NotFound("training not found")
+    else {
+      val search = dir.list.find(x => x.name.startsWith("video-"+params("vid")+"-"))
+      search match {
+        case Some(file) =>
+          contentType="video/mp4"
+          file.toJava
+        case None =>
+          NotFound("Video not found")
+      }
+    }
+  }
+
+  get("/model/:id/:model") {
+    val dir = File(Configuration.dir+params("id")+"/model/")
+    if (!dir.exists)
+      NotFound("training not found")
+    else {
+      val search = dir.list.find(x => x.name == params("model"))
+      search match {
+        case Some(file) =>
+          contentType="application/octet-stream"
+          file.toJava
+        case None =>
+          NotFound("Model not found")
+      }
+    }
+  }
+
+  get("/chart/:id"){
+    contentType = formats("json")
+    val dir = File(Configuration.dir+params("id")+"/stat")
+    if (!dir.exists)
+      NotFound("Chart data not found")
+    else {
+      val chart = dir.lines
+      val converted = chart.map(_.split(" ").map(_.toDouble)).transpose.toList
+      val typed = List(converted(1).map(_.toInt.toString).toList.zip(converted(0).map(_.toInt.toString).toList).map(x => List(x._1, x._2)), converted(2) , converted(3))
+      typed
+    }
+  }
+
+  get("/training/:id") {
+    contentType="text/html"
+
+    val dir = File(Configuration.dir+params("id"))
+    if (!dir.exists)
+      NotFound("training not found")
+    else {
+
+      val trainingInfo = info(dir)
+      val dir_video = dir / "video"
+      val video_files = dir_video.list.filter(_.name contains(".mp4")).map(_.name.split("-")(1)).toList.sortBy(x => -x.toInt)
+      val dir_model = dir / "model"
+      val model_files = dir_model.list.map(_.name).filter(_.endsWith(".model")).toList
+
+      scaml("training.scaml", "layout" -> "WEB-INF/templates/layouts/training.scaml", "title" -> ("Training: #"+params("id")), "trainingInfo" -> trainingInfo, "video_files" -> video_files, "model_files" -> model_files)
+    }
   }
 
 

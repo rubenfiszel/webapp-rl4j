@@ -1,0 +1,34 @@
+-import ch.epfl.doomwatcher._
+-@ val trainings: List[TrainingInfo]
+
+%ol.breadcrumb
+  %li
+    %a(href="#")
+      Home
+
+%div.list-group
+  - for(training <- trainings)
+    %button.list-group-item(type="button")
+
+      %span.badge
+        #{training.ago}
+        %span.glyphicon.glyphicon-time
+      %span.badge #{training.trainingName}
+      %span.badge #{training.mdpName}
+
+      %div.row
+        %a(href={"/training/"+training.name})
+          %h3.col-sm-2.text-center
+            #{training.name}
+          %div.col-sm-8
+            %div.progress
+              - if (training.progress == 100)
+                %div.progress-bar.progress-bar-success(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})
+                  #{training.progress+"%" + " step:" +training.stepCounter}
+              - else if (training.active)
+                %div.progress-bar.progress-bar-info.progress-bar-striped.active(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})
+                  #{training.progress+"%" + " step:" +training.stepCounter}
+
+              - else
+                %div.progress-bar.progress-bar-danger(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})
+                  #{training.progress+"%" + " step:" +training.stepCounter}
