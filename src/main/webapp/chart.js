@@ -117,11 +117,15 @@ $(document).ready(function() {
 	}
     }
 
+    function add(a, b) {
+	return a + b;
+    }
+
     function avg(ar) {
 	if (ar.length == 0)
 	    return null;
 	else
-	    return ar.sum() / ar.length;
+	    return ar.reduce(add, 0) / ar.length;
     }
 
     function loadChart(json) {
