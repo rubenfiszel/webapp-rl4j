@@ -6,9 +6,9 @@
     %a(href="#")
       Home
 
-%div.list-group
+%div.list-group#trainings
   - for(training <- trainings)
-    %button.list-group-item(type="button")
+    %button.list-group-item.training(type="button")
 
       %span.badge
         #{training.ago}
@@ -18,17 +18,17 @@
 
       %div.row
         %a(href={"/training/"+training.name})
-          %h3.col-sm-2.text-center
+          %h3.col-sm-2.text-center.id<
             #{training.name}
           %div.col-sm-8
             %div.progress
               - if (training.progress == 100)
-                %div.progress-bar.progress-bar-success(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})
+                %div.progress-bar.progress-bar-success(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})<
                   #{training.progress+"%" + " step:" +training.stepCounter}
               - else if (training.active)
-                %div.progress-bar.progress-bar-info.progress-bar-striped.active(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})
+                %div.progress-bar.progress-bar-info.progress-bar-striped.active(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})<
                   #{training.progress+"%" + " step:" +training.stepCounter}
 
               - else
-                %div.progress-bar.progress-bar-danger(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})
+                %div.progress-bar.progress-bar-danger(role="progressbar" style={"min-width: 10em; width: "+training.progress+"%"})<
                   #{training.progress+"%" + " step:" +training.stepCounter}

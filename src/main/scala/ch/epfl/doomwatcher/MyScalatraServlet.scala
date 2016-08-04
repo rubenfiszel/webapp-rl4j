@@ -7,8 +7,7 @@ import org.scalatra._
 import better.files._
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.json._
-
-
+import org.json4s.jackson.Serialization.{read, write}
 import scala.language.postfixOps
 
 case class TrainingInfo(name: String, mdpName: String, trainingName: String, ago: String, active: Boolean, progress: Int, stepCounter: Int, maxStep: Int)
@@ -45,6 +44,16 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
     }
     val minAgo10 = new Date(System.currentTimeMillis()-1000*60*5)
     TrainingInfo(f.name, mdpName, trainingName, new PrettyTime().format(ago), ago.after(minAgo10), progress._1, progress._2, progress._3)
+  }
+
+  get ("/info/:id") {
+    val dir = File(Configuration.dir+params("id"))
+    if (!dir.exists)
+      NotFound("training not found")
+    else {
+      contentType = formats("json")
+      write(info(dir))
+    }
   }
 
   get("/") {
@@ -97,16 +106,18 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
     }
   }
 
+  def stat(obj: JValue): List[Any] =
+    obj.children
+
   get("/chart/:id"){
-    contentType = formats("json")
     val dir = File(Configuration.dir+params("id")+"/stat")
     if (!dir.exists)
       NotFound("Chart data not found")
     else {
+      contentType = formats("json")
       val chart = dir.lines
-      val converted = chart.map(_.split(" ").map(_.toDouble)).transpose.toList
-      val typed = List(converted(1).map(_.toInt.toString).toList.zip(converted(0).map(_.toInt.toString).toList).map(x => List(x._1, x._2)), converted(2) , converted(3))
-      typed
+      val converted = chart.map(parse(_)).map(stat).toList.transpose
+      converted
     }
   }
 

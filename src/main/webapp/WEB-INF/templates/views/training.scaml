@@ -53,11 +53,24 @@
   %div.panel-heading
     Charts
   %div.panel-body
-    %div.row
-      %div.col-md-6
-        %canvas(id="cumReward")
-      %div.col-md-6
-        %canvas(id="epsilon")
+    %ul.nav.nav-pills(role="tablist")
+      %li.active(role="presentation")
+        %a(href="#cumrew" aria-controls="cumrew" role="tab" data-toggle="tab")
+          Cumulative reward and Length
+      %li(role="presentation")
+        %a(href="#epsilon" aria-controls="epsilon" role="tab" data-toggle="tab")
+          Epsilon
+      %li(role="presentation")
+        %a(href="#qscore" aria-controls="meanq" role="tab" data-toggle="tab")
+          Start-Q, Mean-Q and Score
+
+    %div.tab-content
+      %div.tab-pane.in.active#cumrew(role="tabpanel")
+        %div#cumrewc
+      %div.tab-pane#epsilon(role="tabpanel")
+        %div#epsilonc
+      %div.tab-pane#qscore(role="tabpanel")
+        %div#qscorec
 
 
 %div.panel-group#accordion(role="tablist" aria-multiselectable="true")
