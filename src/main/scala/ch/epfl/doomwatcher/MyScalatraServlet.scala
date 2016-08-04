@@ -10,7 +10,7 @@ import org.scalatra.json._
 import org.json4s.jackson.Serialization.{read, write}
 import scala.language.postfixOps
 
-case class TrainingInfo(name: String, mdpName: String, trainingName: String, ago: String, active: Boolean, progress: Int, stepCounter: Int, maxStep: Int)
+case class TrainingInfo(name: String, mdpName: String, trainingName: String, ago: String, active: Boolean, progress: Int, stepCounter: Int, maxStep: Int, configuration: String)
 
 class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
 
@@ -42,8 +42,15 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
       case (JInt(step), JInt(maxStep)) => ((step.toLong/maxStep.toLong).toInt, step.toInt, maxStep.toInt)
       case _ => (0, 0, 0)
     }
+
+    val configuration = (json \ "conf") match {
+      case a@(JObject(conf)) => pretty(render(a))
+      case _ => ""
+    }
+
+    println(pretty(render(json)))
     val minAgo10 = new Date(System.currentTimeMillis()-1000*60*5)
-    TrainingInfo(f.name, mdpName, trainingName, new PrettyTime().format(ago), ago.after(minAgo10), progress._1, progress._2, progress._3)
+    TrainingInfo(f.name, mdpName, trainingName, new PrettyTime().format(ago), ago.after(minAgo10), progress._1, progress._2, progress._3, configuration)
   }
 
   get ("/info/:id") {
