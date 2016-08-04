@@ -92,7 +92,7 @@
         %div.panel-collapse.collapse.in(id={"collapse"+i} role="tabpanel" aria-labelledby={"heading"+i})
           %div.panel-body
             %div.text-center
-              %video{:controls => true, :preload=> "none"}
+              %video{:controls => true}
                 %source{:src => {"/video/"+id+"/"+i}, :type => "video/mp4"}
                 Your browser does not support the vidoe tag
     - b = false
