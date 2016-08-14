@@ -39,7 +39,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
     }
 
     val progress = ((json \ "stepCounter"), (json \\ "maxStep")) match {
-      case (JInt(step), JInt(maxStep)) => ((step.toLong/maxStep.toLong).toInt, step.toInt, maxStep.toInt)
+      case (JInt(step), JInt(maxStep)) => ((step.toLong*100/maxStep.toLong).toInt, step.toInt, maxStep.toInt)
       case _ => (0, 0, 0)
     }
 
