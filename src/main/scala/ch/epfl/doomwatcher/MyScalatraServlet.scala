@@ -49,7 +49,6 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
         case _ => ""
       }
 
-      println(pretty(render(json)))
       val minAgo10 = new Date(System.currentTimeMillis()-1000*60*5)
       TrainingInfo(f.name, mdpName, trainingName, new PrettyTime().format(ago), ago.after(minAgo10), progress._1, progress._2, progress._3, configuration)
     })
