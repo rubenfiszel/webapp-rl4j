@@ -127,7 +127,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
     else {
       contentType = formats("json")
       val chart = dir.lines
-      val converted = chart.map(parse(_)).map(stat).toList.transpose
+      val converted = chart.map(parseOpt(_)).filter(_.isDefined).map(_.get).map(stat).toList.transpose
       converted
     }
   }
