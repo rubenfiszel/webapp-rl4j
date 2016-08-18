@@ -1,3 +1,5 @@
+*.log
+
 ## generic files to ignore
 *~
 *.lock
