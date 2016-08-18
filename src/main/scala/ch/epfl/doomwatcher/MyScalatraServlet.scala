@@ -17,6 +17,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
   protected implicit lazy val jsonFormats: Formats = DefaultFormats
 
 
+  val rootDir = System.getProperty("user.home")+"/rl4j-data/"
 
   def info(f: File) = {
     val infoFile = f / "info"
@@ -55,7 +56,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
   }
 
   get ("/info/:id") {
-    val dir = File(Configuration.dir+params("id"))
+    val dir = File(rootDir+params("id"))
     if (!dir.exists)
       NotFound("training not found")
     else {
@@ -66,7 +67,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
 
   get("/") {
     contentType="text/html"
-    val dir = File(Configuration.dir+"/")
+    val dir = File(rootDir+"/")
     if (!dir.exists)
       NotFound("rl4j data folder not found")
     else {
@@ -85,7 +86,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
   }
 
   get("/video/:id/:vid") {
-    val dir = File(Configuration.dir+params("id")+"/video/")
+    val dir = File(rootDir+params("id")+"/video/")
     if (!dir.exists)
       NotFound("training not found")
     else {
@@ -101,7 +102,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
   }
 
   get("/model/:id/:model") {
-    val dir = File(Configuration.dir+params("id")+"/model/")
+    val dir = File(rootDir+params("id")+"/model/")
     if (!dir.exists)
       NotFound("training not found")
     else {
@@ -120,7 +121,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
     obj.children
 
   get("/chart/:id"){
-    val dir = File(Configuration.dir+params("id")+"/stat")
+    val dir = File(rootDir+params("id")+"/stat")
     if (!dir.exists)
       NotFound("Chart data not found")
     else {
@@ -134,7 +135,7 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
   get("/training/:id") {
     contentType="text/html"
 
-    val dir = File(Configuration.dir+params("id"))
+    val dir = File(rootDir+params("id"))
     val trainingInfo = info(dir)
     if (!dir.exists)
       NotFound("training not found")
