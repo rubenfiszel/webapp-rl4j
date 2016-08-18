@@ -20,37 +20,39 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
 
   def info(f: File) = {
     val infoFile = f / "info"
-    val json = parse(infoFile !)
+    val jsonOpt = parseOpt(infoFile !)
 
-    val mdpName = (json \  "mdpName") match {
-      case JString(name) => name
-      case _ => "No mdpName"
-    }
+    jsonOpt.map( json => {
+      val mdpName = (json \  "mdpName") match {
+        case JString(name) => name
+        case _ => "No mdpName"
+      }
 
-    val trainingName = (json \  "trainingName") match {
-      case JString(name) => name
-      case _ => "No trainingName"
-    }
+      val trainingName = (json \  "trainingName") match {
+        case JString(name) => name
+        case _ => "No trainingName"
+      }
 
 
-    val ago = (json \ "millisTime") match {
-      case JInt(millis) => new Date(millis.toLong)
-      case _ => new Date(0)
-    }
+      val ago = (json \ "millisTime") match {
+        case JInt(millis) => new Date(millis.toLong)
+        case _ => new Date(0)
+      }
 
-    val progress = ((json \ "stepCounter"), (json \\ "maxStep")) match {
-      case (JInt(step), JInt(maxStep)) => ((step.toLong*100/maxStep.toLong).toInt, step.toInt, maxStep.toInt)
-      case _ => (0, 0, 0)
-    }
+      val progress = ((json \ "stepCounter"), (json \\ "maxStep")) match {
+        case (JInt(step), JInt(maxStep)) => ((step.toLong*100/maxStep.toLong).toInt, step.toInt, maxStep.toInt)
+        case _ => (0, 0, 0)
+      }
 
-    val configuration = (json \ "conf") match {
-      case a@(JObject(conf)) => pretty(render(a))
-      case _ => ""
-    }
+      val configuration = (json \ "conf") match {
+        case a@(JObject(conf)) => pretty(render(a))
+        case _ => ""
+      }
 
-    println(pretty(render(json)))
-    val minAgo10 = new Date(System.currentTimeMillis()-1000*60*5)
-    TrainingInfo(f.name, mdpName, trainingName, new PrettyTime().format(ago), ago.after(minAgo10), progress._1, progress._2, progress._3, configuration)
+      println(pretty(render(json)))
+      val minAgo10 = new Date(System.currentTimeMillis()-1000*60*5)
+      TrainingInfo(f.name, mdpName, trainingName, new PrettyTime().format(ago), ago.after(minAgo10), progress._1, progress._2, progress._3, configuration)
+    })
   }
 
   get ("/info/:id") {
@@ -73,8 +75,10 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
         .list
         .filter(x => x / "info" exists())
         .map(info)
+        .filter(_.isDefined)
+        .map(_.get)
         .toList
-        .sortBy(_.name)
+        .sortBy(_.name.toInt)
         .reverse
 
       scaml("home.scaml", "title" -> "List of trainings", "trainings" -> trainings)
@@ -132,17 +136,18 @@ class MyScalatraServlet extends Rl4jDoomWebAppStack with JacksonJsonSupport{
     contentType="text/html"
 
     val dir = File(Configuration.dir+params("id"))
+    val trainingInfo = info(dir)
     if (!dir.exists)
       NotFound("training not found")
+    else if (trainingInfo.isEmpty)
+      NotFound("missing info on training")
     else {
-
-      val trainingInfo = info(dir)
       val dir_video = dir / "video"
       val video_files = dir_video.list.filter(_.name contains(".mp4")).map(_.name.split("-")(1)).toList.sortBy(x => -x.toInt)
       val dir_model = dir / "model"
       val model_files = dir_model.list.map(_.name).filter(_.endsWith(".model")).toList
 
-      scaml("training.scaml", "layout" -> "WEB-INF/templates/layouts/training.scaml", "title" -> ("Training: #"+params("id")), "trainingInfo" -> trainingInfo, "video_files" -> video_files, "model_files" -> model_files)
+      scaml("training.scaml", "layout" -> "WEB-INF/templates/layouts/training.scaml", "title" -> ("Training: #"+params("id")), "trainingInfo" -> trainingInfo.get, "video_files" -> video_files, "model_files" -> model_files)
     }
   }
 
